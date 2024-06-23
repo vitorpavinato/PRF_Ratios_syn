@@ -1,15 +1,15 @@
 """
-Set of functions for rooting SNPs
+Set of functions for processing .TSV file lines.
 """
 
 from typing import Tuple, List
 
 
 # Functions:
-def processing_snp_fields(line: List[str]) -> List[str]:
+def process_snp_signature(line: List[str]) -> List[str]:
     """
-    Function to process a line of the table
-    SNP coordinates, total counts and effect
+    Function to process a line of the .TSV file.
+    It extracts SNP coordinates, total counts and effect.
     """
 
     # Get the chromosome and position
@@ -27,10 +27,11 @@ def processing_snp_fields(line: List[str]) -> List[str]:
     return snp_fields
 
 
-def processing_fields_for_rooting(line: List[str]) -> Tuple[str, List[str], List[str], List[str]]:
+def process_alleles(line: List[str]) -> Tuple[str, List[str], List[str], List[str]]:
     """
-    Function to process a line of the table:
-    Information used for rooting SNPs.
+    Function to process a line of the .TSV file.
+    It extracts the allele information used for rooting SNPs:
+    root, snp_alleles, refcount, altcount, refcodon, altcodon.
     """
 
     # Get the root
@@ -54,10 +55,10 @@ def processing_fields_for_rooting(line: List[str]) -> Tuple[str, List[str], List
     return root, snp_alleles, allele_counts, allele_codons
 
 
-def root_snps(snp_alleles: List[str],
-              allele_counts: List[str],
-              allele_codons: List[str]
-              ) -> Tuple[List[str], List[str], List[str]]:
+def root_snp(snp_alleles: List[str],
+             allele_counts: List[str],
+             allele_codons: List[str]
+             ) -> Tuple[List[str], List[str], List[str]]:
 
     """
     Function to root SNPs in a tsv table

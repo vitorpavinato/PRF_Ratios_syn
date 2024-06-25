@@ -9,6 +9,7 @@ from collections import defaultdict
 from typing import List
 from pandas import DataFrame
 import numpy as np
+import pandas as pd
 
 
 # Define the genetic code
@@ -25,7 +26,7 @@ genetic_code = {
 
 
 # Define the synonymous pairs
-def generate_synonymous_pairs() -> List[str]:
+def generate_synonymous_pairs(genetic_code: dict) -> List[str]:
     """
     Function to generate synonymous pairs from the genetic code.
     """
@@ -34,6 +35,38 @@ def generate_synonymous_pairs() -> List[str]:
         if codon1 != codon2 and genetic_code[codon1] == genetic_code[codon2]:
             synonymous_pairs.append(f"{codon1}->{codon2}")
     return synonymous_pairs
+
+
+def create_codon_change_dict(df: DataFrame) -> dict:
+    # Generate all possible synonymous codon changes
+    synonymous_changes = generate_synonymous_pairs()
+    
+    # Create the nested dictionary structure
+    codon_dict = {change: defaultdict(lambda: defaultdict(int)) for change in synonymous_changes}
+    phylop_dict = {change: defaultdict(lambda: defaultdict(int)) for change in synonymous_changes}
+    phastcons_dict = {change: defaultdict(lambda: defaultdict(int)) for change in synonymous_changes}
+
+    
+    # Fill the dictionary with data from the DataFrame
+    for _, row in df.iterrows():
+        codon_change = row['codon_change']
+        if codon_change in synonymous_changes:
+            total_count = row['totalcount']
+            alt_count = row['altcount']
+            extra_annotation = row['custom_annotation']
+            phylop_value = row['phyloP']
+            phastcons_value = row['phastCons']
+
+            # Skip if the SNP is in an exon-intron junction
+            if extra_annotation == 'eij':
+                continue
+
+            if (row['maineffect'] == 'SYNONYMOUS_CODING' and not pd.isna(phylop_value) and not pd.isna(row['phastCons'])):
+                codon_dict[codon_change][total_count].append(alt_count)
+                phylop_dict[codon_change].append(phylop_value)
+                phastcons_dict[codon_change].append(phastcons_value)
+
+    return codon_dict, phylop_dict, phastcons_dict
 
 
 # Define the function to process the main dictionary 

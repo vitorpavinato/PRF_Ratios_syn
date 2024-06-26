@@ -140,12 +140,12 @@ def plot_scores(data: DataFrame, score_type: str, name: str) -> None:
     # Save the figure
     file_path = f'../exploratory/{name}_{score_type}_plot_{timestamp}.png'
     fig.savefig(file_path, dpi=300, bbox_inches='tight')
-    
+
     print(f"Plot saved as {file_path}")
 
     # Show the plot (optional, comment out if not needed)
     plt.show()
-    
+
     # Close the figure to free up memory
     plt.close(fig)
 

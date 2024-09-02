@@ -108,3 +108,27 @@ def save_data(data: dict, pickle_file: str, json_file: str):
         pickle.dump(data, f)
     with open(json_file, 'w') as f:
         json.dump({k: dict(v) for k, v in data.items()}, f, indent=2)
+
+
+def export_codonsfs_by_sample_size(
+        data: dict,
+        output_file: str,
+        sample_size: int) -> None:
+    """
+    Export codon changes SFSs in a dictionary for a 
+    given sample size to a .TXT file.
+    """
+
+    # Rename output file
+    output_file, _ = output_file.strip().split(".txt")
+    output_file = f"{output_file}_{sample_size}.txt"
+
+    # Prompt message
+    print("Exporting codon change SFSs in a dictionary to a .TXT file")
+
+    with open(output_file, "w", encoding="utf-8") as outfile:
+        for key, value in data.items():
+            outfile.write(f"{key.replace("->", ">")}\n")
+            outfile.write(" ".join(str(item) for item in value[sample_size]) + "\n\n")
+
+    print(f"SFSs exported to : {output_file}")

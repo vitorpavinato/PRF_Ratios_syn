@@ -80,8 +80,8 @@ def plot_xvar_vs_yvars(
                  bbox=dict(boxstyle='round,pad=0.5', fc='yellow', alpha=0.5),
                  fontsize=12)
 
-    # y1var plot
-    sns.regplot(x=xvar_col, y=y2var_col, data=dt, ax=ax1)
+    # y2var plot
+    sns.regplot(x=xvar_col, y=y2var_col, data=dt, ax=ax2)
     ax2.set_xlabel(f'{xvar_col}')
     ax2.set_ylabel(f'{y2var_col}')
     ax2.set_title(f'{xvar_col} vs {y2var_col}')

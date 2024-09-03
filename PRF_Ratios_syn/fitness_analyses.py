@@ -3,12 +3,68 @@ Module containing function to estimate fitness for amino acids with two or more 
 """
 
 import itertools
-from typing import Callable, Any, Tuple, List
+from typing import Callable, Any, Tuple, List, Dict
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.linalg import lstsq
 from scipy import stats
 from sklearn.linear_model import LinearRegression
+
+
+def extract_unique_codons(codon_changes: List[Tuple[str, float]]) -> List[str]:
+    """
+    Extract unique codons from a list of codon changes.
+    """
+    unique_codons = set()
+    for change, _ in codon_changes:
+        start, end = change.split('>')
+        unique_codons.add(start)
+        unique_codons.add(end)
+
+    return sorted(list(unique_codons))
+
+
+def import_from_codonpair(inputfile: str) -> Dict[str, Tuple[List[Tuple[str, float]], List[str]]]:
+    """
+    Import codon pair data from a file and extract unique codons for each amino acid.
+    """
+    
+    codon_data: Dict[str, Tuple[List[Tuple[str, float]], List[str]]] = {}
+
+    try:
+        with open(inputfile, 'r', encoding='utf-8') as infile:
+            for line in infile:
+                if line.startswith("Codon_pair"):
+                    continue
+                if len(line.split()) == 8 and ">" in line.split()[0]:
+                    parts = line.split()
+                    codon_change = parts[0]
+                    amino_acid = parts[1]
+                    try:
+                        two_ns = float(parts[7])
+                    except ValueError:
+                        continue  # Skip lines where conversion to float fails
+
+                    # Add the codon change to the dictionary
+                    if amino_acid not in codon_data:
+                        codon_data[amino_acid] = ([],[])
+
+                    codon_data[amino_acid][0].append((codon_change, two_ns))
+        
+        # After processing all lines, calculate unique codons for each amino acid
+        for amino_acid, (changes, _) in codon_data.items():
+            print(changes)
+            unique_codons = extract_unique_codons(changes)
+            codon_data[amino_acid] = (changes, unique_codons)
+
+    except FileNotFoundError:
+        print(f"Error: File '{inputfile}' not found.")
+    except IOError:
+        print(f"Error: Could not read file '{inputfile}'.")
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+
+    return codon_data
 
 
 def create_codon_matrix(
@@ -549,7 +605,6 @@ def fisher_method(
     p_value = 1 - stats.chi2.cdf(chi_squared, df)
 
     return chi_squared, p_value
-
 
 
 def main() -> None:
